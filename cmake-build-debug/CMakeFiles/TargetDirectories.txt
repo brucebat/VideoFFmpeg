@@ -1,0 +1,3 @@
+/Users/suntianyu/CLionProjects/VideoFFmpeg/cmake-build-debug/CMakeFiles/VideoFFmpeg.dir
+/Users/suntianyu/CLionProjects/VideoFFmpeg/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/suntianyu/CLionProjects/VideoFFmpeg/cmake-build-debug/CMakeFiles/rebuild_cache.dir
