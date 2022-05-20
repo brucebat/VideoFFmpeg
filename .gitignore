@@ -58,3 +58,4 @@ classes/
 *.ptx.c
 *.ptx.gz
 *_g
+cmake-build-*/
