@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(VideoFFmpeg)
 
 set(CMAKE_CXX_STANDARD 14)
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp MediaFFmpeg.cpp MediaFFmpeg.h)
 
 link_directories(./lib/)
 include_directories(./include/)

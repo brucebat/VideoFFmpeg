@@ -56,6 +56,13 @@ build CMakeFiles/VideoFFmpeg.dir/main.cpp.o: CXX_COMPILER__VideoFFmpeg_Debug /Us
   OBJECT_DIR = CMakeFiles/VideoFFmpeg.dir
   OBJECT_FILE_DIR = CMakeFiles/VideoFFmpeg.dir
 
+build CMakeFiles/VideoFFmpeg.dir/MediaFFmpeg.cpp.o: CXX_COMPILER__VideoFFmpeg_Debug /Users/suntianyu/CLionProjects/VideoFFmpeg/MediaFFmpeg.cpp || cmake_object_order_depends_target_VideoFFmpeg
+  DEP_FILE = CMakeFiles/VideoFFmpeg.dir/MediaFFmpeg.cpp.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk -std=gnu++14
+  INCLUDES = -I/Users/suntianyu/CLionProjects/VideoFFmpeg/./include
+  OBJECT_DIR = CMakeFiles/VideoFFmpeg.dir
+  OBJECT_FILE_DIR = CMakeFiles/VideoFFmpeg.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target VideoFFmpeg
@@ -64,7 +71,7 @@ build CMakeFiles/VideoFFmpeg.dir/main.cpp.o: CXX_COMPILER__VideoFFmpeg_Debug /Us
 #############################################
 # Link the executable VideoFFmpeg
 
-build VideoFFmpeg: CXX_EXECUTABLE_LINKER__VideoFFmpeg_Debug CMakeFiles/VideoFFmpeg.dir/main.cpp.o
+build VideoFFmpeg: CXX_EXECUTABLE_LINKER__VideoFFmpeg_Debug CMakeFiles/VideoFFmpeg.dir/main.cpp.o CMakeFiles/VideoFFmpeg.dir/MediaFFmpeg.cpp.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk
   LINK_LIBRARIES = -Wl,-rpath,/Users/suntianyu/CLionProjects/VideoFFmpeg/./lib  -lavcodec  -lavdevice  -lavfilter  -lavformat
   LINK_PATH = -L/Users/suntianyu/CLionProjects/VideoFFmpeg/./lib
