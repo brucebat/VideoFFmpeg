@@ -27,6 +27,9 @@ public:
 
     /*
      * 打开指定路径的文件, 如果存在已经打开的文件则不打开新的文件
+     *
+     * @param  path 待打开的文件路径
+     * @return 是否打开成功
      */
     bool Open(const char *path);
 
@@ -36,17 +39,24 @@ public:
     void Close();
 
     /*
-     * 进行视频帧读取
+     * 进行视频包读取
+     *
+     * @return 从视频文件中读取出来的视频包数据（压缩数据）
      */
     AVPacket Read();
 
     /*
-     * 进行视频帧解码处理
+     * 进行视频包解码处理
+     *
+     * @param 待解码的视频包（压缩数据）
+     * @return 解码完成的（原始）视频帧数据
      */
     AVFrame *Decode(const AVPacket *packet);
 
     /*
      * 获取相关错误信息
+     *
+     * @return 错误信息
      */
     std::string GetError();
 
@@ -67,11 +77,11 @@ protected:
     // TODO 在实际使用的时候需要使用mutex锁来应对多线程情况下的调用
 
     /*
-     *
+     * 格式化IO上下文
      */
     AVFormatContext *ac = nullptr;
     /*
-     *
+     * YUV视频数据信息（解码后数据）
      */
     AVFrame *yuv = nullptr;
 

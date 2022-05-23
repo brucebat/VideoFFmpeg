@@ -5,6 +5,9 @@
 #include "MediaFFmpeg.h"
 
 bool MediaFFmpeg::Open(const char *path) {
+    // 打开指定文件之前需要先关闭当前打开的文件
+    Close();
+
     return false;
 }
 
