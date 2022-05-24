@@ -31,10 +31,8 @@ bool MediaFFmpeg::Open(const char *path) {
             // todo 设置异常信息: 无法进行视频解码操作
             return false;
         }
-        // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
-        AVCodecContext *codec_context = avcodec_alloc_context3(codec);
-        avcodec_parameters_to_context(codec_context, stream->codecpar);
-        codec_context->pkt_timebase = stream->time_base;
+        // 根据解码器进行解码上下文分配,并进行解码器相关信息复制，由于上面已经判断过解码器是否存在，所以这里不需要对解码上下文进行判断
+        AVCodecContext *codec_context = GetCodecContext(stream);
         // 判断是否是视频
         if (codec_context->codec_type == AVMEDIA_TYPE_VIDEO) {
             int error = avcodec_open2(codec_context, codec, nullptr);
@@ -79,13 +77,9 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
     if (yuv_ == nullptr) {
         yuv_ = av_frame_alloc();
     }
-    // todo 重复代码需要提取成公共方法
     AVStream *stream = ac_->streams[packet->stream_index];
-    const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
     // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
-    AVCodecContext *codec_context = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(codec_context, stream->codecpar);
-    codec_context->pkt_timebase = stream->time_base;
+    AVCodecContext *codec_context = GetCodecContext(stream);
     int read = avcodec_send_packet(codec_context, packet);
     if (read != 0) {
         av_strerror(read, error_buff_, sizeof(error_buff_));
@@ -111,4 +105,17 @@ MediaFFmpeg::~MediaFFmpeg() {
 MediaFFmpeg::MediaFFmpeg() {
     // 初始化一下异常信息变量
     error_buff_[0] = '\0';
+}
+
+AVCodecContext *MediaFFmpeg::GetCodecContext(const AVStream *stream) {
+    // 获取解码器，判断当前文件是否可以进行解码处理
+    const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+    if (!codec) {
+        return nullptr;
+    }
+    // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
+    AVCodecContext *codec_context = avcodec_alloc_context3(codec);
+    avcodec_parameters_to_context(codec_context, stream->codecpar);
+    codec_context->pkt_timebase = stream->time_base;
+    return codec_context;
 }

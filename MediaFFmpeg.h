@@ -95,6 +95,14 @@ protected:
      */
     MediaFFmpeg();
 
+private:
+    /*
+     * 获取解码上下文
+     *
+     * @param stream 待处理解码上下文
+     */
+    static AVCodecContext *GetCodecContext(const AVStream *stream);
+
 };
 
 
