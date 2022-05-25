@@ -22,9 +22,10 @@ int main() {
         std::cout << "视频数据包的pts = " << packet.pts << std::endl;
         AVFrame *yuv = MediaFFmpeg::Get()->Decode(&packet);
         if (yuv) {
-            std::cout << "解码成功, 对应数据包的持续时间duration = " << yuv->pkt_duration << std::endl;
+            std::cout << "解码成功, 对应数据包的持续时间duration = " << yuv->pkt_duration << ", pts = " << yuv->pts << std::endl;
         }
         av_packet_unref(&packet);
+        packet = MediaFFmpeg::Get()->Read();
     }
 
     return 0;

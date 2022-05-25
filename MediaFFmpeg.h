@@ -100,8 +100,9 @@ private:
      * 获取解码上下文
      *
      * @param stream 待处理解码上下文
+     * @param error_buff 异常信息缓冲区
      */
-    static AVCodecContext *GetCodecContext(const AVStream *stream);
+    static AVCodecContext *GetCodecContext(const AVStream *stream, char *error_buff);
 
 };
 
