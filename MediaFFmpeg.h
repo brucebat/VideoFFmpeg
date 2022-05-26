@@ -85,6 +85,11 @@ protected:
      * 格式化IO上下文
      */
     AVFormatContext *ac_ = nullptr;
+
+    /*
+     * 获取解码器上下文
+     */
+    AVCodecContext *codec_context_ = nullptr;
     /*
      * YUV视频数据信息（解码后数据）
      */
@@ -102,7 +107,7 @@ private:
      * @param stream 待处理解码上下文
      * @param error_buff 异常信息缓冲区
      */
-    static AVCodecContext *GetCodecContext(const AVStream *stream, char *error_buff);
+    void *GetCodecContext(const AVStream *stream, char *error_buff);
 
 };
 
