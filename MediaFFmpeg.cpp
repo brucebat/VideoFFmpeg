@@ -11,9 +11,10 @@
 //#pragma comment(lib, "swscale.lib")
 
 /*
- * 1. 看一下ffmpeg example代码
- * 2. 关注内存泄漏
- * 3. 理解AVPackage和AVFrame
+ * TODO
+ *  1. 看一下ffmpeg example代码, 参考：http://ffmpeg.org/doxygen/4.1/decode_video_8c-example.html#a11
+ *  2. 关注内存泄漏
+ *  3. 理解AVPackage和AVFrame
  */
 bool MediaFFmpeg::Open(const char *path) {
     // 打开指定文件之前需要先关闭当前打开的文件
@@ -81,21 +82,21 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
     // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
     GetCodecContext(stream, error_buff_);
     // 发送数据到解码队列当中
-    int read = avcodec_send_packet(this->codec_context_, packet);
-    if (read != 0) {
-        av_strerror(read, error_buff_, sizeof(error_buff_));
+    int ret = avcodec_send_packet(this->codec_context_, packet);
+    if (ret < 0) {
+        av_strerror(ret, error_buff_, sizeof(error_buff_));
         return nullptr;
     }
     // 从解码队列中接收解码成功的视频帧数据
-    while (true) {
+    while (ret > 0) {
         // todo 该方法执行时出现了-35: Resource Temporarily Unavailable错误，这里需要查看一下为什么会出现这个问题
-        read = avcodec_receive_frame(this->codec_context_, yuv_);
-        if (read == AVERROR(EAGAIN)) {
-            av_strerror(read, error_buff_, sizeof(error_buff_));
+        ret = avcodec_receive_frame(this->codec_context_, yuv_);
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            av_strerror(ret, error_buff_, sizeof(error_buff_));
             break;
         }
-        if (read == AVERROR_EOF) {
-            av_strerror(read, error_buff_, sizeof(error_buff_));
+        if (ret < 0) {
+            av_strerror(ret, error_buff_, sizeof(ret));
             break;
         }
     }
@@ -108,11 +109,12 @@ std::string MediaFFmpeg::GetError() {
 }
 
 MediaFFmpeg::~MediaFFmpeg() {
-
+    // todo 上层忘记调用的时候可能会出现内存泄漏，需要关注如何避免该问题
 }
 
 MediaFFmpeg::MediaFFmpeg() {
     // 初始化一下异常信息变量
+    // todo 这里可以使用memset来处理
     error_buff_[0] = '\0';
 }
 
