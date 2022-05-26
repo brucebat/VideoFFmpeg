@@ -78,7 +78,7 @@ protected:
     /*
      * 错误信息缓冲区
      */
-    char error_buff_[2048];
+    char error_buff_[2048]{};
     // TODO 在实际使用的时候需要使用mutex锁来应对多线程情况下的调用
 
     /*
@@ -105,9 +105,8 @@ private:
      * 获取解码上下文
      *
      * @param stream 待处理解码上下文
-     * @param error_buff 异常信息缓冲区
      */
-    void *GetCodecContext(const AVStream *stream, char *error_buff);
+    void GetCodecContext(const AVStream *stream);
 
 };
 

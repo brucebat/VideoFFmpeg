@@ -39,7 +39,7 @@ bool MediaFFmpeg::Open(const char *path) {
             return false;
         }
         // 根据解码器进行解码上下文分配,并进行解码器相关信息复制，由于上面已经判断过解码器是否存在，所以这里不需要对解码上下文进行判断
-        GetCodecContext(stream, error_buff_);
+        GetCodecContext(stream);
         // 判断是否是视频
         if (!codec_context_) {
             return false;
@@ -56,6 +56,9 @@ void MediaFFmpeg::Close() {
     if (yuv_) {
         // 释放视频数据信息
         av_frame_free(&yuv_);
+    }
+    if (codec_context_) {
+        avcodec_free_context(&codec_context_);
     }
 }
 
@@ -80,7 +83,7 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
     }
     AVStream *stream = ac_->streams[packet->stream_index];
     // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
-    GetCodecContext(stream, error_buff_);
+    GetCodecContext(stream);
     // 发送数据到解码队列当中
     int ret = avcodec_send_packet(this->codec_context_, packet);
     if (ret < 0) {
@@ -88,16 +91,16 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
         return nullptr;
     }
     // 从解码队列中接收解码成功的视频帧数据
-    while (ret > 0) {
+    while (ret >= 0) {
         // todo 该方法执行时出现了-35: Resource Temporarily Unavailable错误，这里需要查看一下为什么会出现这个问题
         ret = avcodec_receive_frame(this->codec_context_, yuv_);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             av_strerror(ret, error_buff_, sizeof(error_buff_));
-            break;
+            return nullptr;
         }
         if (ret < 0) {
             av_strerror(ret, error_buff_, sizeof(ret));
-            break;
+            exit(0);
         }
     }
     return yuv_;
@@ -118,11 +121,12 @@ MediaFFmpeg::MediaFFmpeg() {
     error_buff_[0] = '\0';
 }
 
-void *MediaFFmpeg::GetCodecContext(const AVStream *stream, char *error_buff) {
+void MediaFFmpeg::GetCodecContext(const AVStream *stream) {
     // 获取解码器，判断当前文件是否可以进行解码处理
     const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
     if (!codec) {
-        return nullptr;
+        std::strcpy(error_buff_, "No codec found");
+        return;
     }
     // 根据解码器进行解码上下文分配,并进行解码器相关信息复制
     // 这里修改为使用成员变量来代替函数内的局部变量
@@ -137,7 +141,7 @@ void *MediaFFmpeg::GetCodecContext(const AVStream *stream, char *error_buff) {
         if (error != 0) {
             // 使用解码器打开异常, 当前数据流无法进行解码
             // 此处需要将错误信息透出
-            av_strerror(error, error_buff, sizeof(error_buff));
+            av_strerror(error, error_buff_, sizeof(error_buff_));
             // 如果打开异常则将解码器上下文变脸设置为空指针
             codec_context_ = nullptr;
         }

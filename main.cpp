@@ -23,10 +23,14 @@ int main() {
         AVFrame *yuv = MediaFFmpeg::Get()->Decode(&packet);
         if (yuv) {
             std::cout << "解码成功, 对应数据包的持续时间duration = " << yuv->pkt_duration << ", pts = " << yuv->pts << std::endl;
+        } else {
+            std::cout << "解码失败, 错误信息为: " << MediaFFmpeg::Get()->GetError() << std::endl;
         }
         av_packet_unref(&packet);
         packet = MediaFFmpeg::Get()->Read();
     }
+    // 释放空间
+    av_packet_unref(&packet);
 
     return 0;
 }
