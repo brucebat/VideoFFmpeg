@@ -113,6 +113,8 @@ std::string MediaFFmpeg::GetError() {
 
 MediaFFmpeg::~MediaFFmpeg() {
     // todo 上层忘记调用的时候可能会出现内存泄漏，需要关注如何避免该问题
+    // 这里需要调用Close()进行变量释放
+    Close();
 }
 
 MediaFFmpeg::MediaFFmpeg() {
