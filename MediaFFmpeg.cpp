@@ -1,7 +1,7 @@
 //
 // Created by 孙天宇 on 2022/5/20.
 //
-
+#include <iostream>
 #include "MediaFFmpeg.h"
 
 // windows才需要添加
@@ -29,22 +29,23 @@ bool MediaFFmpeg::Open(const char *path) {
     }
     // 获取读取的文件的总时间
     total_duration_ = (ac_->duration / AV_TIME_BASE) * 1000;
-    for (int i = 0; i < ac_->nb_streams; ++i) {
-        // 获取待处理的视频流数据
-        AVStream *stream = ac_->streams[i];
-        // 获取解码器，判断当前文件是否可以进行解码处理
-        const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
-        if (!codec) {
-            std::strcpy(error_buff_, "codec not found in the resource");
-            return false;
-        }
-        // 根据解码器进行解码上下文分配,并进行解码器相关信息复制，由于上面已经判断过解码器是否存在，所以这里不需要对解码上下文进行判断
-        GetCodecContext(stream);
-        // 判断是否是视频
-        if (!codec_context_) {
-            return false;
-        }
-    }
+    // 这里的解码处理可以在实际需要的时候再进行
+//    for (int i = 0; i < ac_->nb_streams; ++i) {
+//        // 获取待处理的视频流数据
+//        AVStream *stream = ac_->streams[i];
+//        // 获取解码器，判断当前文件是否可以进行解码处理
+//        const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+//        if (!codec) {
+//            std::strcpy(error_buff_, "codec not found in the resource");
+//            return false;
+//        }
+//        // 根据解码器进行解码上下文分配,并进行解码器相关信息复制，由于上面已经判断过解码器是否存在，所以这里不需要对解码上下文进行判断
+//        GetCodecContext(stream);
+//        // 判断是否是视频
+//        if (!codec_context_) {
+//            return false;
+//        }
+//    }
     return true;
 }
 
@@ -102,6 +103,10 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
             av_strerror(ret, error_buff_, sizeof(ret));
             exit(0);
         }
+        if (yuv_) {
+            std::cout << "解码成功, 对应数据包的持续时间duration = " << yuv_->pkt_duration << ", pts = " << yuv_->pts << std::endl;
+            return yuv_;
+        }
     }
     return yuv_;
 }
@@ -112,7 +117,6 @@ std::string MediaFFmpeg::GetError() {
 }
 
 MediaFFmpeg::~MediaFFmpeg() {
-    // todo 上层忘记调用的时候可能会出现内存泄漏，需要关注如何避免该问题
     // 这里需要调用Close()进行变量释放
     Close();
 }
