@@ -104,8 +104,8 @@ AVFrame *MediaFFmpeg::Decode(const AVPacket *packet) {
             exit(0);
         }
         if (yuv_) {
+            // 这里打印的pts为显示时间戳，是解码器显示帧相对于SCR(系统参考)的时间戳，其中SCR可以理解为解码器应该开始从磁盘读取数据时的时间
             std::cout << "解码成功, 对应数据包的持续时间duration = " << yuv_->pkt_duration << ", pts = " << yuv_->pts << std::endl;
-            return yuv_;
         }
     }
     return yuv_;
@@ -119,12 +119,12 @@ std::string MediaFFmpeg::GetError() {
 MediaFFmpeg::~MediaFFmpeg() {
     // 这里需要调用Close()进行变量释放
     Close();
+    memset(error_buff_, 0, sizeof(error_buff_));
 }
 
 MediaFFmpeg::MediaFFmpeg() {
-    // 初始化一下异常信息变量
-    // todo 这里可以使用memset来处理
-    error_buff_[0] = '\0';
+    // 初始化一下异常信息变量，这里可以使用memset来进行空间初始化
+    memset(error_buff_, '\0', sizeof(error_buff_));
 }
 
 void MediaFFmpeg::GetCodecContext(const AVStream *stream) {
